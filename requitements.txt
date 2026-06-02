@@ -1,0 +1,14 @@
+accelerate
+emoji
+transformers
+pyevall
+pandas
+matplotlib
+seaborn
+wordcloud
+torchvision
+scikit-learn
+ollama
+peft
+ruff
+mypy
