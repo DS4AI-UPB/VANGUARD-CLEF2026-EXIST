@@ -1,7 +1,7 @@
 [project]
 name = "exist-2026"
 version = "0.1.0"
-description = "EXIST 2026 experiments for CLEF 2026 to idenfiy sexism in social networks via memes."
+description = "EXIST 2026 experiments for CLEF 2026 to identifiy sexism in social networks via memes."
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }

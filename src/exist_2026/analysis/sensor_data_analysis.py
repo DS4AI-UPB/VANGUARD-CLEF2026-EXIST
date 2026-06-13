@@ -1,9 +1,13 @@
+import argparse
 import json
+import os
+
 import pandas as pd
 import numpy as np
 from scipy import stats
 import matplotlib.pyplot as plt
 import seaborn as sns
+from exist_2026.path_manager import PathManager
 
 
 def parse_dataset(json_file_path):
@@ -99,7 +103,7 @@ def generate_statistical_tables(df_annot, df_inst):
     print("-" * 60)
 
     print("Demographics (Chi-Square Tests vs Labeling Behavior)")
-    demo_vars = ["gender", "age", "study_level"]
+    demo_vars = ["gender", "age", "study_level", "ethnicity"]
     for var in demo_vars:
         contingency = pd.crosstab(df_annot[var], df_annot["label"])
         chi2, p, dof, expected = stats.chi2_contingency(contingency)
@@ -138,7 +142,7 @@ def generate_statistical_tables(df_annot, df_inst):
     print("-" * 60)
 
 
-def plot_relevant_features_boxplots(df_inst):
+def plot_relevant_features_boxplots(df_inst, output_dir):
     sns.set_theme(style="white")
 
     features_to_plot = [
@@ -169,11 +173,13 @@ def plot_relevant_features_boxplots(df_inst):
             axes[i].set_ylabel(title)
 
     plt.tight_layout()
-    plt.savefig("relevant_features_boxplots.png", dpi=300)
+    save_path = os.path.join(output_dir, "relevant_features_boxplots.png")
+    plt.savefig(save_path, dpi=300)
+    print(f"Saved boxplots to: {save_path}")
     plt.show()
 
 
-def plot_correlation_heatmap(df_inst):
+def plot_correlation_heatmap(df_inst, output_dir):
     cols_order = [
         "reaction_time", "fixations_count", "saccades_count",
         "pupil_left_mean", "hr_mean", "hr_std",
@@ -198,15 +204,37 @@ def plot_correlation_heatmap(df_inst):
     )
     plt.title("Spearman Correlation: Physiological Sensors & Sexism Ratio")
     plt.tight_layout()
-    plt.savefig("sensor_correlation_heatmap.png", dpi=300)
+    save_path = os.path.join(output_dir, "sensor_correlation_heatmap.png")
+    plt.savefig(save_path, dpi=300)
+    print(f"Saved heatmap to: {save_path}")
     plt.show()
 
 
-if __name__ == "__main__":
-    from exist_2026.path_manager import PathManager
+def main():
+    parser = argparse.ArgumentParser(
+        description="Parse physiological sensor data and generate statistical tables and plots."
+    )
 
-    df_annot, df_inst = parse_dataset(PathManager.DATA_DIR / "processed_data.json")
+    parser.add_argument(
+        "--input-file", type=str, default=str(PathManager.DATA_DIR / "processed_data.json"),
+        help="Path to the processed JSON dataset."
+    )
+
+    parser.add_argument(
+        "--output-dir", type=str, default=".",
+        help="Directory to save the generated plots (defaults to current directory)."
+    )
+
+    args = parser.parse_args()
+    os.makedirs(args.output_dir, exist_ok=True)
+
+    print(f"Loading data from: {args.input_file}")
+    df_annot, df_inst = parse_dataset(args.input_file)
 
     generate_statistical_tables(df_annot, df_inst)
-    plot_relevant_features_boxplots(df_inst)
-    plot_correlation_heatmap(df_inst)
+    plot_relevant_features_boxplots(df_inst, args.output_dir)
+    plot_correlation_heatmap(df_inst, args.output_dir)
+
+
+if __name__ == "__main__":
+    main()

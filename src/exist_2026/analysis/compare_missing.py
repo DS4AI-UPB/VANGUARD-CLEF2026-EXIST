@@ -1,6 +1,9 @@
+import argparse
 import json
 import os
 from pathlib import Path
+
+from exist_2026.path_manager import PathManager
 
 
 def process_and_validate_ocr(
@@ -90,12 +93,30 @@ def process_and_validate_ocr(
                 print(f"✅ {category.replace('_', ' ').title()}: None")
 
 
-if __name__ == "__main__":
-    DATA_FILE = Path("/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/test")
-    MAIN_FILE = DATA_FILE / "EXIST2026_test_clean.json"
-    # DATA_FILE = Path("/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/training")
-    # MAIN_FILE = DATA_FILE / "EXIST2026_training.json"
-    OCR_FILE = DATA_FILE / "ocr_results.json"
-    ERROR_FILE = DATA_FILE / "ocr_parsing_errors.json"
+def main(default_data_dir: str | Path):
+    default_data_dir = Path(default_data_dir)
+    parser = argparse.ArgumentParser(description="Clean and validate OCR generated JSON against the main JSON file")
+    parser.add_argument(
+        "--main-file", type=str, default=str(default_data_dir / "EXIST2026_test_clean"),
+        help="Path to the main (gold standard) JSON file"
+    )
+    parser.add_argument(
+        "--ocr-file", type=str, default=str(default_data_dir / "ocr_results.json"),
+        help="Path to the OCR results JSON file"
+    )
+    parser.add_argument(
+        "--error-file", type=str, default=str(default_data_dir / "ocr_parsing_errors.json"),
+        help="Path to output the parsing errors JSON file"
+    )
+    args = parser.parse_args()
 
-    process_and_validate_ocr(MAIN_FILE, OCR_FILE, ERROR_FILE)
+    process_and_validate_ocr(args.main_file, args.ocr_file, args.error_file)
+
+
+if __name__ == "__main__":
+    # default_dir = PathManager.DATA_EXIST_DIR / "training"
+    # MAIN_FILE = DATA_FILE / "EXIST2026_training.json"
+    # MAIN_FILE = DATA_FILE / "EXIST2026_test_clean.json"
+
+    default_dir = PathManager.DATA_EXIST_DIR / "test"
+    main(default_dir)

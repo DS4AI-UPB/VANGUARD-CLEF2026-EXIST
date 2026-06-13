@@ -1,20 +1,20 @@
-import os
-import json
+import argparse
 import glob
+import json
 import logging
+import os
+import string
+from pathlib import Path
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
 from PIL import Image
 from wordcloud import WordCloud
-import string
+
 from exist_2026.path_manager import PathManager
 
-JSON_DIR = PathManager.DATA_DIR / "og"
-PLOTS_DIR = PathManager.ANALYSIS_DIR / "plots"
-
-os.makedirs(PLOTS_DIR, exist_ok=True)
 sns.set_theme(style="whitegrid", palette="muted")
 
 logging.basicConfig(
@@ -80,7 +80,7 @@ def extract_image_features(df, base_dir):
     return df
 
 
-def analyze_and_plot(df):
+def analyze_and_plot(df, plots_dir: str | Path):
     logger.info(f"Loaded {len(df)} records. Starting analysis...")
 
     df["char_count"] = df["text"].astype(str).apply(len)
@@ -107,7 +107,7 @@ def analyze_and_plot(df):
     plt.title("Distribution of Languages")
     plt.xlabel("Language")
     plt.ylabel("Number of Memes")
-    plt.savefig(os.path.join(PLOTS_DIR, "1_language_distribution.pdf"), format="pdf", bbox_inches="tight")
+    plt.savefig(os.path.join(plots_dir, "1_language_distribution.pdf"), format="pdf", bbox_inches="tight")
     plt.close()
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -118,7 +118,7 @@ def analyze_and_plot(df):
     sns.histplot(df["word_count"], bins=30, kde=True, ax=axes[1], color="salmon")
     axes[1].set_title("Distribution of Word Counts")
     axes[1].set_xlabel("Number of Words")
-    plt.savefig(os.path.join(PLOTS_DIR, "2_text_length_distributions.pdf"), format="pdf", bbox_inches="tight")
+    plt.savefig(os.path.join(plots_dir, "2_text_length_distributions.pdf"), format="pdf", bbox_inches="tight")
     plt.close()
 
     all_text = " ".join(df["text"].astype(str).tolist())
@@ -130,7 +130,7 @@ def analyze_and_plot(df):
         plt.imshow(wordcloud, interpolation="bilinear")
         plt.axis("off")
         plt.title("Most Frequent Words Across All Memes")
-        plt.savefig(os.path.join(PLOTS_DIR, "3_text_wordcloud.pdf"), format="pdf", bbox_inches="tight")
+        plt.savefig(os.path.join(plots_dir, "3_text_wordcloud.pdf"), format="pdf", bbox_inches="tight")
         plt.close()
 
     task1_labels = [label for sublist in df["labels_task2_1"].dropna() for label in sublist]
@@ -153,7 +153,7 @@ def analyze_and_plot(df):
     axes[2].tick_params(axis="x", rotation=90)
 
     plt.tight_layout()
-    plt.savefig(os.path.join(PLOTS_DIR, "4_annotation_label_distributions.pdf"), format="pdf", bbox_inches="tight")
+    plt.savefig(os.path.join(plots_dir, "4_annotation_label_distributions.pdf"), format="pdf", bbox_inches="tight")
     plt.close()
 
     if "img_width" in df.columns and not df["img_width"].isna().all():
@@ -170,7 +170,7 @@ def analyze_and_plot(df):
         axes[1].axvline(1.0, color="red", linestyle="--", label="1:1 Square")
         axes[1].legend()
 
-        plt.savefig(os.path.join(PLOTS_DIR, "5_image_dimensions.pdf"), format="pdf", bbox_inches="tight")
+        plt.savefig(os.path.join(plots_dir, "5_image_dimensions.pdf"), format="pdf", bbox_inches="tight")
         plt.close()
 
     if "img_brightness" in df.columns and not df["img_brightness"].isna().all():
@@ -179,19 +179,42 @@ def analyze_and_plot(df):
         plt.title("Distribution of Image Brightness (0=Black, 255=White)")
         plt.xlabel("Average Pixel Brightness")
         plt.ylabel("Count")
-        plt.savefig(os.path.join(PLOTS_DIR, "6_image_brightness.pdf"), format="pdf", bbox_inches="tight")
+        plt.savefig(os.path.join(plots_dir, "6_image_brightness.pdf"), format="pdf", bbox_inches="tight")
         plt.close()
 
-    logger.info(f"Analysis complete! All publication-ready PDFs have been saved to the '{PLOTS_DIR}' directory.")
+    logger.info(f"Analysis complete! All publication-ready PDFs have been saved to the '{plots_dir}' directory.")
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(description="Extract features from dataset images/text and generate EDA plots.")
+
+    parser.add_argument(
+        "--json-dir", type=str, default=str(PathManager.DATA_DIR / "og"),
+        help="Directory containing the EXIST2026_training.json file."
+    )
+    parser.add_argument(
+        "--base-image-dir", type=str, default=str(PathManager.DATA_DIR),
+        help="Base directory to resolve relative image paths from the JSON."
+    )
+    parser.add_argument(
+        "--plots-dir", type=str, default=str(PathManager.ANALYSIS_DIR / "plots"),
+        help="Directory where the generated plots will be saved."
+    )
+
+    args = parser.parse_args()
+
+    os.makedirs(args.plots_dir, exist_ok=True)
+
     logger.info("Initializing dataset load...")
-    df = load_dataset(JSON_DIR)
+    df = load_dataset(args.json_dir)
 
     if not df.empty:
         logger.info("Extracting image features using paths from the dataset...")
-        df = extract_image_features(df, PathManager.DATA_DIR)
-        analyze_and_plot(df)
+        df = extract_image_features(df, args.base_image_dir)
+        analyze_and_plot(df, args.plots_dir)
     else:
-        logger.warning(f"No data found. Please check your '{JSON_DIR}' directory for JSON files.")
+        logger.warning(f"No data found. Please check your '{args.json_dir}' directory for JSON files.")
+
+
+if __name__ == "__main__":
+    main()

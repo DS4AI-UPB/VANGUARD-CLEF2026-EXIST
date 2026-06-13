@@ -332,27 +332,33 @@ def evaluate_soft_2_1(pred_records, gold_records) -> dict[str, float]:
 
 
 def evaluate_hard_2_2(pred_records, gold_records) -> dict[str, float]:
-    return _run_pyevall(
+    icm = _run_pyevall(
         pred_records, gold_records,
-        ["ICM", "ICMNorm", "FMeasure"],
+        ["ICM", "ICMNorm"],
         hierarchy=Task22.HIERARCHY,
     )
+    f1 = _run_pyevall(pred_records, gold_records, ["FMeasure"])
+    return {**icm, **f1}
 
 
 def evaluate_soft_2_2(pred_records, gold_records) -> dict[str, float]:
-    return _run_pyevall(
+    icm = _run_pyevall(
         pred_records, gold_records,
-        ["ICMSoft", "ICMSoftNorm", "CrossEntropy"],
+        ["ICMSoft", "ICMSoftNorm"],
         hierarchy=Task22.HIERARCHY,
     )
+    ce = _run_pyevall(pred_records, gold_records, ["CrossEntropy"])
+    return {**icm, **ce}
 
 
 def evaluate_hard_2_3(pred_records, gold_records) -> dict[str, float]:
-    return _run_pyevall(
+    icm = _run_pyevall(
         pred_records, gold_records,
-        ["ICM", "ICMNorm", "FMeasure"],
+        ["ICM", "ICMNorm"],
         hierarchy=Task23.HIERARCHY,
     )
+    f1 = _run_pyevall(pred_records, gold_records, ["FMeasure"])
+    return {**icm, **f1}
 
 
 def evaluate_soft_2_3(pred_records, gold_records) -> dict[str, float]:
