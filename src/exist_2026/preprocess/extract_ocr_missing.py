@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 from pathlib import Path
@@ -224,15 +225,20 @@ def improve_meme_ocr(image_dir: str | Path, errors_path: str | Path, output_file
     print(f"Still failed: {still_failed}")
 
 
-if __name__ == "__main__":
-    # Train
-    image_dir = "/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/training/memes"
-    errors_path = "/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/training/ocr_parsing_errors.json"
-    output_file = "/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/training/ocr_results_corrected.json"
-    improve_meme_ocr(image_dir, errors_path, output_file)
+def main():
+    """
+    Run this for each subset (train or test)
+    ocr_parsing_errors.json
+    ocr_results_corrected.json
+    """
+    parser = argparse.ArgumentParser(description="Run Ollama-based OCR on meme images.")
+    parser.add_argument("--image-dir", type=str, required=True, help="Path to the memes image directory")
+    parser.add_argument("--errors_path", type=str, required=True, help="Path to the errors JSON file")
+    parser.add_argument("--output-file", type=str, required=True, help="Path to save the OCR results JSON")
+    args = parser.parse_args()
 
-    # Test
-    image_dir = "/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/test/memes"
-    errors_path = "/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/test/ocr_parsing_errors.json"
-    output_file = "/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset/test/ocr_results_corrected.json"
-    improve_meme_ocr(image_dir, errors_path, output_file)
+    improve_meme_ocr(args.image_dir, args.metadata_path, args.output_file)
+
+
+if __name__ == "__main__":
+    main()

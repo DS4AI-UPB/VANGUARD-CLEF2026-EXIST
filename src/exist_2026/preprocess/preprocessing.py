@@ -1,3 +1,4 @@
+import argparse
 import json
 import re
 import unicodedata
@@ -146,21 +147,22 @@ def preprocess_data(input_json_path: str | Path, ocr_json_path: str | Path, outp
     print(f"Successfully processed {len(processed_list)} items to {output_json_path}.")
 
 
+def main():
+    """
+    EXIST2026_training.json
+    ocr_results_combined.json
+    output to processed_data.json
+    """
+    parser = argparse.ArgumentParser(
+        description="Preprocess meme dataset by merging OCR results and cleaning text for transformer input."
+    )
+    parser.add_argument("--input-path", type=str, required=True, help="Path to the raw input JSON file")
+    parser.add_argument("--ocr-path", type=str, required=True, help="Path to the OCR results JSON file")
+    parser.add_argument("--output-path", type=str, required=True, help="Path to save the processed output JSON file")
+    args = parser.parse_args()
+
+    preprocess_data(args.input_path, args.ocr_path, args.output_path)
+
+
 if __name__ == "__main__":
-    DATA_PATH = Path("/data/Medz/EXIST 2026 Dataset V0.2/EXIST 2026 Memes Dataset")
-
-    # INPUT_PATH = PathManager.DATA_DIR / "EXIST2026_training.json"
-    # OCR_PATH = PathManager.DATA_DIR / "ocr_results_v2.json"
-    # OUTPUT_PATH = PathManager.DATA_DIR / "processed_data.json"
-    INPUT_PATH = DATA_PATH / "training" / "EXIST2026_training.json"
-    OCR_PATH = DATA_PATH / "training" / "ocr_results_combined.json"
-    OUTPUT_PATH = DATA_PATH / "training" / "processed_data.json"
-    preprocess_data(INPUT_PATH, OCR_PATH, OUTPUT_PATH)
-
-    # INPUT_PATH = PathManager.DATA_DIR / "test" / "EXIST2025_test_clean.json"
-    # OCR_PATH = PathManager.DATA_DIR / "test" / "ocr_results.json"
-    # OUTPUT_PATH = PathManager.DATA_DIR / "test" / "processed_data.json"
-    INPUT_PATH = DATA_PATH / "test" / "EXIST2026_test_clean.json"
-    OCR_PATH = DATA_PATH / "test" / "ocr_results_combined.json"
-    OUTPUT_PATH = DATA_PATH / "test" / "processed_data.json"
-    preprocess_data(INPUT_PATH, OCR_PATH, OUTPUT_PATH)
+    main()

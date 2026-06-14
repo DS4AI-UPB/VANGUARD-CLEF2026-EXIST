@@ -266,6 +266,6 @@ if __name__ == "__main__":
     if best_test.get("test_f1"):
         print(f"\t\tBest test F1:        r={best_test['r']}, α={best_test['alpha']} ({best_test['test_f1']:.4f})")
         if best_val["r"] != best_test["r"]:
-            print(f"\t\t⚠ Val and test disagree — check for overfitting on r={best_test['r']}")
+            print(f"\t\tWarn: Val and test disagree - check for overfitting on r={best_test['r']}")
         else:
-            print(f"\t\t✓ Val and test agree — r={best_val['r']} is the pick")
+            print(f"\t\tDone: Val and test agree — r={best_val['r']} is the pick")

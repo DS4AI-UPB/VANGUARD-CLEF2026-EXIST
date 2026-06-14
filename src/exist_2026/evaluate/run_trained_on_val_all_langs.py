@@ -1,3 +1,4 @@
+import argparse
 import json
 from pathlib import Path
 
@@ -179,30 +180,67 @@ def evaluate_run(
     return results_by_lang
 
 
-if __name__ == "__main__":
+def main():
+    """
+    RUN_DIR = "/data/Medz/exist-models/multitask_ensemble"
+    RUN_DIR = "/data/Medz/exist-2026/output/results/task_1/multitask_all"
+    RUN_DIR = "/data/Medz/exist-models/multitask_all_aug"
+    RUN_DIR = "/data/Medz/exist-models/multitask_ensemble_aug"
+
+    --run-dir=<PATH_TO_TRAINED_MODEL_DIRECTORY>
+
+    --json-path=<PATH_TO>/processed_data.json
+    --json-path=<PATH_TO>/processed_data_augmented.json
+    """
     DATA = PathManager.DATA_EXIST_DIR
 
-    # RUN_DIR = "/data/Medz/exist-models/multitask_ensemble"  
-    # JSON_PATH = DATA / "training" / "processed_data.json"
-    RUN_DIR = "/data/Medz/exist-2026/output/results/task_1/multitask_all"
-    JSON_PATH = DATA / "training" / "processed_data.json"
-    # RUN_DIR = "/data/Medz/exist-models/multitask_all_aug"  
-    # JSON_PATH = DATA / "training" / "processed_data_augmented.json"
-    # RUN_DIR = "/data/Medz/exist-models/multitask_ensemble_aug"  
-    # JSON_PATH = DATA / "training" / "processed_data_augmented.json"
-    IMG_DIR = DATA / "training" / "memes"
-
-    TASKS = {"2.1", "2.2", "2.3"}
-    SEED = 42
-    TRAIN_RATIO = 0.8
-    BATCH_SIZE = 16
+    parser = argparse.ArgumentParser(
+        description="Reload a saved checkpoint and recompute full PyEvALL validation metrics broken down by language."
+    )
+    parser.add_argument("--run-dir", type=str, required=True, help="Path to the run directory containing best_model.pt")
+    parser.add_argument(
+        "--json-path", type=str, default=str(DATA / "training" / "processed_data.json"),
+        help="Path to the processed data JSON file"
+    )
+    parser.add_argument(
+        "--img-dir", type=str, default=str(DATA / "training" / "memes"), help="Path to the memes image directory"
+    )
+    parser.add_argument(
+        "--tasks", type=str, nargs="+", default=["2.1", "2.2", "2.3"],
+        help="Tasks to evaluate (e.g. --tasks 2.1 2.2 2.3)"
+    )
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Random seed. It must match the original training run (default: 42)"
+    )
+    parser.add_argument(
+        "--train-ratio", type=float, default=0.8,
+        help="Train/val split ratio. It must match the original training run (default: 0.8)"
+    )
+    parser.add_argument("--batch-size", type=int, default=16, help="Batch size (default: 16)")
+    parser.add_argument(
+        "--text-model", type=str, default="FacebookAI/xlm-roberta-base", help="HuggingFace text encoder model name"
+    )
+    parser.add_argument(
+        "--image-model", type=str, default="openai/clip-vit-base-patch32", help="HuggingFace image encoder model name"
+    )
+    parser.add_argument("--lora-r", type=int, default=16, help="LoRA rank (default: 16)")
+    parser.add_argument("--lora-alpha", type=int, default=32, help="LoRA alpha (default: 32)")
+    args = parser.parse_args()
 
     evaluate_run(
-        run_dir=RUN_DIR,
-        json_path=JSON_PATH,
-        img_dir=IMG_DIR,
-        tasks=TASKS,
-        seed=SEED,
-        train_ratio=TRAIN_RATIO,
-        batch_size=BATCH_SIZE,
+        run_dir=args.run_dir,
+        json_path=args.json_path,
+        img_dir=args.img_dir,
+        tasks=set(args.tasks),
+        seed=args.seed,
+        train_ratio=args.train_ratio,
+        batch_size=args.batch_size,
+        text_model=args.text_model,
+        image_model=args.image_model,
+        lora_r=args.lora_r,
+        lora_alpha=args.lora_alpha,
     )
+
+
+if __name__ == "__main__":
+    main()

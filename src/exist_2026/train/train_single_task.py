@@ -17,7 +17,6 @@ from exist_2026.evaluate.eval_multitask import (
     save_submission_2_2,
     save_submission_2_3,
 )
-from exist_2026.path_manager import PathManager
 from exist_2026.train.helpers import pretrain_sensor_autoencoder, build_multitask_model, \
     build_optimizer, find_optimal_threshold, build_multitask_dataloaders, get_raw_data, compute_true_2_1_ratios
 from exist_2026.train.nn.determinism import seed_everything
@@ -27,7 +26,6 @@ from exist_2026.train.nn.losses import (
     multilabel_soft_bce_loss,
     supervised_contrastive_loss,
 )
-from exist_2026.train.train_steps import train_step
 from exist_2026.visualization.plot_training import plot_training_results
 
 
@@ -295,32 +293,69 @@ def train_single_task(
     print(f"\n\t- Single-task {task} training complete.")
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="EXIST 2026 single-task trainer")
-    parser.add_argument("--task", type=str, required=True, choices=["2.1", "2.2", "2.3", "all"],
-                        help="Which subtask to train (or 'all' for sequential)")
-    parser.add_argument("--lora_r", type=int, default=16)
-    parser.add_argument("--lora_alpha", type=int, default=32)
-    parser.add_argument("--epochs", type=int, default=50)
-    parser.add_argument("--seed", type=int, default=42)
-    args = parser.parse_args()
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="EXIST 2026 single-task trainer.", formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    DATA_PATH = PathManager.DATA_EXIST_DIR
+    parser.add_argument(
+        "--task", type=str, required=True, choices=["2.1", "2.2", "2.3", "all"],
+        help="Which subtask to train. Use 'all' to run all three sequentially.",
+    )
+
+    parser.add_argument("--json-path", type=Path, required=True, help="Path to the training processed_data.json file.")
+    parser.add_argument("--img-dir", type=Path, required=True, help="Directory containing training meme images.")
+    parser.add_argument(
+        "--test-json", type=Path, default=None, help="Path to the test processed_data.json file (optional)."
+    )
+    parser.add_argument(
+        "--test-img-dir", type=Path, default=None, help="Directory containing test meme images (optional)."
+    )
+    parser.add_argument(
+        "--save-dir", type=Path, required=True, help="Base directory where per-task output folders will be created."
+    )
+
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    parser.add_argument(
+        "--train-ratio", type=float, default=0.8, help="Fraction of data used for training (rest goes to validation)."
+    )
+    parser.add_argument("--num-epochs", type=int, default=50, help="Maximum number of training epochs.")
+
+    parser.add_argument(
+        "--text-model", type=str, default="FacebookAI/xlm-roberta-base",
+        help="HuggingFace model ID for the text encoder."
+    )
+    parser.add_argument(
+        "--image-model", type=str, default="openai/clip-vit-base-patch32",
+        help="HuggingFace model ID for the image encoder."
+    )
+    parser.add_argument("--lora-r", type=int, default=16, help="LoRA rank.")
+    parser.add_argument("--lora-alpha", type=int, default=32, help="LoRA alpha scaling factor.")
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
     tasks_to_run = ["2.1", "2.2", "2.3"] if args.task == "all" else [args.task]
 
     for t in tasks_to_run:
-        run_dir = PathManager.TASK_1_DIR / f"tastsdt_test_single_task_{t.replace('.', '_')}_r{args.lora_r}_a{args.lora_alpha}"
+        run_dir = args.save_dir / f"single_task_{t.replace('.', '_')}_r{args.lora_r}_a{args.lora_alpha}"
         run_dir.mkdir(parents=True, exist_ok=True)
 
         train_single_task(
             task=t,
-            json_path=DATA_PATH / "training" / "processed_data.json",
-            img_dir=DATA_PATH / "training" / "memes",
-            test_json=DATA_PATH / "test" / "processed_data.json",
-            test_img_dir=DATA_PATH / "test" / "memes",
+            json_path=args.json_path,
+            img_dir=args.img_dir,
+            test_json=args.test_json,
+            test_img_dir=args.test_img_dir,
             save_dir=run_dir,
             seed=args.seed,
-            num_epochs=args.epochs,
+            train_ratio=args.train_ratio,
+            num_epochs=args.num_epochs,
+            text_model=args.text_model,
+            image_model=args.image_model,
             lora_r=args.lora_r,
             lora_alpha=args.lora_alpha,
         )
@@ -330,7 +365,7 @@ if __name__ == "__main__":
         print("\tSummary across all single-task runs")
         print(f"{'=' * 60}\n")
         for t in tasks_to_run:
-            run_dir = PathManager.TASK_1_DIR / f"single_task_{t.replace('.', '_')}_r{args.lora_r}_a{args.lora_alpha}"
+            run_dir = args.save_dir / f"single_task_{t.replace('.', '_')}_r{args.lora_r}_a{args.lora_alpha}"
             results_path = run_dir / "test_results.json"
             if results_path.exists():
                 with open(results_path) as f:
@@ -340,3 +375,7 @@ if __name__ == "__main__":
                     print(f"\t\t{k}: {v:.4f}" if isinstance(v, float) else f"\t\t{k}: {v}")
             else:
                 print(f"\tTask {t}: no test results found")
+
+
+if __name__ == "__main__":
+    main()

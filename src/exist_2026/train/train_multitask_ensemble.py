@@ -10,14 +10,13 @@ from exist_2026.evaluate.eval_multitask import (
     save_submission_2_2,
     save_submission_2_3,
 )
-from exist_2026.path_manager import PathManager
 from exist_2026.train.ensemble_pipeline import (
     run_ensemble_for_task,
     apply_ensemble_to_test,
 )
 from exist_2026.train.helpers import build_multitask_model, build_optimizer, pretrain_sensor_autoencoder, \
     find_optimal_threshold, save_config, build_multitask_dataloaders, get_raw_data, \
-    init_multitask_csv_log, compute_true_2_1_ratios, log_multitask_epoch
+    init_multitask_csv_log, compute_true_2_1_ratios, log_multitask_epoch, parse_multitask_train_args
 from exist_2026.train.nn.determinism import seed_everything
 from exist_2026.train.nn.early_stop import EarlyStopping
 from exist_2026.train.nn.losses import MultitaskLoss
@@ -210,13 +209,39 @@ def train_multitask_ensemble(
     print("\n- Multitask + Ensemble training complete.")
 
 
-if __name__ == "__main__":
-    DATA = PathManager.DATA_EXIST_DIR
+def main():
+    args = parse_multitask_train_args()
+
     train_multitask_ensemble(
-        json_path=DATA / "training" / "processed_data.json",
-        img_dir=DATA / "training" / "memes",
-        test_json=DATA / "test" / "processed_data.json",
-        test_img_dir=DATA / "test" / "memes",
-        save_dir=PathManager.TASK_1_DIR / "testx",
-        tasks={"2.1", "2.2", "2.3"},
+        json_path=args.json_path,
+        img_dir=args.img_dir,
+        test_json=args.test_json,
+        test_img_dir=args.test_img_dir,
+        save_dir=args.save_dir,
+        tasks=set(args.tasks),
+        seed=args.seed,
+        train_ratio=args.train_ratio,
+        num_epochs=args.num_epochs,
+        text_model=args.text_model,
+        image_model=args.image_model,
+        lora_r=args.lora_r,
+        lora_alpha=args.lora_alpha,
+        weight_2_1=args.weight_2_1,
+        weight_2_2=args.weight_2_2,
+        weight_2_3=args.weight_2_3,
+        weight_aux=args.weight_aux,
+        weight_contrastive=args.weight_contrastive,
     )
+
+
+if __name__ == "__main__":
+    # DATA = PathManager.DATA_EXIST_DIR
+    # train_multitask_ensemble(
+    #     json_path=DATA / "training" / "processed_data.json",
+    #     img_dir=DATA / "training" / "memes",
+    #     test_json=DATA / "test" / "processed_data.json",
+    #     test_img_dir=DATA / "test" / "memes",
+    #     save_dir=PathManager.TASK_1_DIR / "testx",
+    #     tasks={"2.1", "2.2", "2.3"},
+    # )
+    main()

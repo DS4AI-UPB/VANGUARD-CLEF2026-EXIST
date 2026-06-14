@@ -1,3 +1,4 @@
+import argparse
 import csv
 import json
 import random
@@ -343,3 +344,75 @@ def save_scaler(save_dir: Path, scaler: StandardScaler) -> None:
     path = save_dir / "sensor_scaler.joblib"
     joblib.dump(scaler, path)
     print(f"Saved scaler to {path}")
+
+
+def parse_multitask_train_args() -> argparse.Namespace:
+    """
+    # Minimal (required args only)
+    python train_multitask.py \
+      --json-path data/training/processed_data.json \
+      --img-dir data/training/memes \
+      --save-dir runs/experiment1
+
+    # With test set and custom hyperparameters
+    python train_multitask.py \
+      --json-path data/training/processed_data.json \
+      --img-dir data/training/memes \
+      --test-json data/test/processed_data.json \
+      --test-img-dir data/test/memes \
+      --save-dir runs/experiment1 \
+      --tasks 2.1 2.2 \
+      --num-epochs 30 \
+      --lora-r 8 \
+      --weight-contrastive 0.05
+
+    # Built-in help
+    python train_multitask.py --help
+    """
+    parser = argparse.ArgumentParser(
+        description="Train a multitask model for EXIST 2026.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.add_argument("--json-path", type=Path, required=True, help="Path to the training processed_data.json file.")
+    parser.add_argument("--img-dir", type=Path, required=True, help="Directory containing training meme images.")
+    parser.add_argument(
+        "--test-json", type=Path, default=None, help="Path to the test processed_data.json file (optional)."
+    )
+    parser.add_argument(
+        "--test-img-dir", type=Path, default=None, help="Directory containing test meme images (optional)."
+    )
+    parser.add_argument(
+        "--save-dir", type=Path, required=True, help="Directory where model checkpoints and logs will be saved."
+    )
+
+    parser.add_argument(
+        "--tasks", nargs="+", default=["2.1", "2.2", "2.3"], choices=["2.1", "2.2", "2.3"],
+        help="Which subtasks to train on."
+    )
+
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    parser.add_argument(
+        "--train-ratio", type=float, default=0.8, help="Fraction of data used for training (rest goes to validation)."
+    )
+    parser.add_argument("--num-epochs", type=int, default=50, help="Maximum number of training epochs.")
+    parser.add_argument(
+        "--text-model", type=str, default="FacebookAI/xlm-roberta-base",
+        help="HuggingFace model ID for the text encoder.",
+    )
+    parser.add_argument(
+        "--image-model", type=str, default="openai/clip-vit-base-patch32",
+        help="HuggingFace model ID for the image encoder.",
+    )
+    parser.add_argument("--lora-r", type=int, default=16, help="LoRA rank.")
+    parser.add_argument("--lora-alpha", type=int, default=32, help="LoRA alpha scaling factor.")
+    parser.add_argument("--weight-2-1", type=float, default=1.0, help="Loss weight for task 2.1.")
+    parser.add_argument("--weight-2-2", type=float, default=1.0, help="Loss weight for task 2.2.")
+    parser.add_argument("--weight-2-3", type=float, default=1.0, help="Loss weight for task 2.3.")
+    parser.add_argument("--weight-aux", type=float, default=0.3, help="Loss weight for auxiliary head.")
+    parser.add_argument(
+        "--weight-contrastive", type=float, default=0.1,
+        help="Loss weight for contrastive objective.",
+    )
+
+    return parser.parse_args()

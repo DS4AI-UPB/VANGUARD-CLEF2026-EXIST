@@ -218,37 +218,36 @@ def run_ablation(
     torch.cuda.empty_cache()
 
 
-if __name__ == "__main__":
+def main():
     """
-    Configurations (10 total):
-    1. baseline         -> full DL system, all three tasks, all components on
-    2. no_film          -> FiLM modulation off (no human conditioning)
-    3. no_description   -> visual description stream off (text + image only)
-    4. no_image         -> image stream off (text + description only)
-    5. text_only        -> description + image both off
-    6. no_contrastive   -> SupCon loss weight set to 0
-    7. no_aux_head      -> auxiliary sexism head loss weight set to 0
-    8. only_2_1         -> train only on Subtask 2.1
-    9. only_2_2         -> train only on Subtask 2.2
-    10. only_2_3        -> train only on Subtask 2.3
+        Configurations (10 total):
+        1. baseline         -> full DL system, all three tasks, all components on
+        2. no_film          -> FiLM modulation off (no human conditioning)
+        3. no_description   -> visual description stream off (text + image only)
+        4. no_image         -> image stream off (text + description only)
+        5. text_only        -> description + image both off
+        6. no_contrastive   -> SupCon loss weight set to 0
+        7. no_aux_head      -> auxiliary sexism head loss weight set to 0
+        8. only_2_1         -> train only on Subtask 2.1
+        9. only_2_2         -> train only on Subtask 2.2
+        10. only_2_3        -> train only on Subtask 2.3
 
-    Usage:
-        # Run all configs sequentially:
-        python train_ablations.py
-    
-    
-        # (3 seeds × 3 GPUs in 3 terminals = one terminal per seed):
-        CUDA_VISIBLE_DEVICES=1 uv run src/exist_2026/train/train_ablations.py --seed 43
-        CUDA_VISIBLE_DEVICES=2 uv run src/exist_2026/train/train_ablations.py --seed 44
-        CUDA_VISIBLE_DEVICES=3 uv run src/exist_2026/train/train_ablations.py --seed 45
-        CUDA_VISIBLE_DEVICES=0 uv run src/exist_2026/train/train_ablations.py --seed 46
-    
-        # Run a subset (for parallel execution across terminals):
-        CUDA_VISIBLE_DEVICES=1 uv run src/exist_2026/train/train_ablations.py --names baseline,no_film,no_description,text_only
-        CUDA_VISIBLE_DEVICES=2 uv run src/exist_2026/train/train_ablations.py --names no_image,no_contrastive,only_2_1
-        CUDA_VISIBLE_DEVICES=3 uv run src/exist_2026/train/train_ablations.py --names no_aux_head,only_2_2,only_2_3
-        
-    """
+        Usage:
+            # Run all configs sequentially:
+            python train_ablations.py
+
+            # (3 seeds on X GPUs in 3 terminals = one terminal per seed):
+            CUDA_VISIBLE_DEVICES=1 uv run src/exist_2026/train/train_ablations.py --seed 43
+            CUDA_VISIBLE_DEVICES=2 uv run src/exist_2026/train/train_ablations.py --seed 44
+            CUDA_VISIBLE_DEVICES=3 uv run src/exist_2026/train/train_ablations.py --seed 45
+            CUDA_VISIBLE_DEVICES=0 uv run src/exist_2026/train/train_ablations.py --seed 46
+
+            # Run a subset (for parallel execution across terminals):
+            CUDA_VISIBLE_DEVICES=1 uv run src/exist_2026/train/train_ablations.py --names baseline,no_film,no_description,text_only
+            CUDA_VISIBLE_DEVICES=2 uv run src/exist_2026/train/train_ablations.py --names no_image,no_contrastive,only_2_1
+            CUDA_VISIBLE_DEVICES=3 uv run src/exist_2026/train/train_ablations.py --names no_aux_head,only_2_2,only_2_3
+
+        """
     parser = argparse.ArgumentParser(
         description="Run ablation training configurations.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -319,3 +318,7 @@ if __name__ == "__main__":
     print(f"This batch finished (seed={args.seed}). When all seeds are done, run:")
     print("\tpython aggregate_ablations.py")
     print("=" * 72)
+
+
+if __name__ == "__main__":
+    main()

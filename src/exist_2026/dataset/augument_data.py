@@ -1,5 +1,7 @@
+import argparse
 import json
 import os
+from pathlib import Path
 
 import torch
 from tqdm import tqdm
@@ -99,8 +101,9 @@ def augment_dataset(input_json_path, output_json_path, batch_size=16):
                     clean_descriptions = [item.get("clean_description", "") for item in batch_items]
 
                     trans_clean_texts = translate_batch(clean_texts, tokenizer, model, device, src_lang, tgt_lang)
-                    trans_clean_descriptions = translate_batch(clean_descriptions, tokenizer, model, device, src_lang,
-                                                               tgt_lang)
+                    trans_clean_descriptions = translate_batch(
+                        clean_descriptions, tokenizer, model, device, src_lang, tgt_lang
+                    )
 
                     for j in range(len(batch_items)):
                         orig_item = batch_items[j]
@@ -146,12 +149,30 @@ def augment_dataset(input_json_path, output_json_path, batch_size=16):
     print(f"Data multiplication complete! Saved {len(final_data)} total memes to: {output_json_path}")
 
 
+def main(default_data_dir: str | Path):
+    default_data_dir = Path(default_data_dir)
+    parser = argparse.ArgumentParser(description="Augment a meme dataset by translating EN<->ES using NLLB")
+    parser.add_argument(
+        "--input-file", type=str,
+        default=str(default_data_dir / "training" / "processed_data.json"),
+        help="Path to the input JSON file"
+    )
+    parser.add_argument(
+        "--output-file", type=str,
+        default=str(default_data_dir / "training" / "processed_data_augmented.json"),
+        help="Path to the output augmented JSON file"
+    )
+    parser.add_argument(
+        "--batch-size", type=int, default=16,
+        help="Batch size for translation (default: 16)"
+    )
+    args = parser.parse_args()
+
+    os.makedirs(os.path.dirname(args.output_file), exist_ok=True)
+    augment_dataset(args.input_file, args.output_file, batch_size=args.batch_size)
+
+
 if __name__ == "__main__":
     from exist_2026.path_manager import PathManager
 
-    INPUT_FILE = PathManager.DATA_EXIST_DIR / "training" / "processed_data.json"
-    OUTPUT_FILE = PathManager.DATA_EXIST_DIR / "training" / "processed_data_augmented.json"
-
-    os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
-
-    augment_dataset(INPUT_FILE, OUTPUT_FILE)
+    main(PathManager.DATA_EXIST_DIR)
