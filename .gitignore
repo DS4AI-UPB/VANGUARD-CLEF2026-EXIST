@@ -245,3 +245,5 @@ results/
 output/
 outputs/
 *.zip
+
+.vscode
