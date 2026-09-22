@@ -20,7 +20,7 @@ This repository contains the source code and assets for the official project web
 
 ## Resources
 - [Paper (CLEF EXIST 2026 Working Notes)](https://When-Paper-Appears-it-Will-Work.com) - placeholder until the official proceedings entry is available
-- [arXiv](https://arxiv.org/abs/WIP) - WIP
+- [arXiv](https://arxiv.org/abs/2609.15608)
 - [Code](https://github.com/DS4AI-UPB/VANGUARD-CLEF2026-EXIST) - full five-stage pipeline, training, and ablation scripts
 
 ## Local Development
