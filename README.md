@@ -2,7 +2,7 @@
 
 [![Paper](https://img.shields.io/badge/Paper-CLEF%20EXIST%202026-7c3aed)](https://When-Paper-Appears-it-Will-Work.com)
 [![Code Implementation](https://img.shields.io/badge/Code-Implementation-green)](https://github.com/DS4AI-UPB/VANGUARD-CLEF2026-EXIST)
-[![arXiv](https://img.shields.io/badge/arXiv-WIP-b31b1b.svg)](https://arxiv.org/abs/WIP)
+[![arXiv](https://img.shields.io/badge/arXiv-2609.15608-b31b1b.svg)](https://arxiv.org/abs/2609.15608)
 [![Leaderboard](https://img.shields.io/badge/EXIST%202026%20Task%202.2-29th%2F114%20%C2%B7%20soft-b8860b)](https://github.com/DS4AI-UPB/VANGUARD-CLEF2026-EXIST)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
