@@ -296,12 +296,18 @@ src/exist_2026/
 
 **WIP: Placeholder until the official proceedings entry is available:**
 ```bibtex
-@InProceedings{Mocanu_2026_EXIST_CLEF,
-    author    = {Mocanu, Ana-Maria Luisa and Mocanu, Sebastian and Truică, Ciprian-Octavian and Apostol, Elena-Simona},
-    title     = {Through the Eyes of the Beholder: Biometric and Demographic Conditioning for Multimodal Sexism Detection},
-    booktitle = {Conference and Labs of the Evaluation Forum (CLEF), EXIST 2026 Lab, Task 2},
-    month     = {September},
-    year      = {2026}
+@InProceedings{Ana_Maria_Luisa_Mocanu_2026_EXIST_CLEF,
+  author = {Mocanu, Ana-Maria Luisa and
+            Mocanu, Sebastian and
+            Truică, Ciprian-Octavian and
+            Apostol, Elena-Simona},
+  title = {Through the Eyes of the Beholder: Biometric and Demographic Conditioning for Multimodal Sexism Detection},
+  booktitle = {CLEF 2026 Working Notes},
+  series = {CEUR Workshop Proceedings},
+  volume = {4283},
+  pages = {2329--2344},
+  year = {2026},
+  publisher = {CEUR-WS.org}
 }
 ```
 
