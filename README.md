@@ -294,7 +294,6 @@ src/exist_2026/
 
 ## Citation
 
-**WIP: Placeholder until the official proceedings entry is available:**
 ```bibtex
 @InProceedings{Ana_Maria_Luisa_Mocanu_2026_EXIST_CLEF,
   author = {Mocanu, Ana-Maria Luisa and
