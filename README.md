@@ -7,7 +7,7 @@
 [Ana-Maria Luisa Mocanu](https://scholar.google.com/citations?user=Kw4_jBMAAAAJ&hl=en), [Sebastian Mocanu](https://scholar.google.com/citations?user=osyBED4AAAAJ&hl=en),
 [Ciprian-Octavian Truică](https://scholar.google.com/citations?user=ZOKqr-QAAAAJ&hl=en), [Elena-Simona Apostol](https://scholar.google.com/citations?user=XUZcjpEAAAAJ&hl=en)
 
-[![Paper](https://img.shields.io/badge/Paper-CLEF%20EXIST%202026-blue)](https://When-Paper-Appears-it-Will-Work.com)
+[![Paper](https://img.shields.io/badge/Paper-CLEF%20EXIST%202026-blue)](https://ceur-ws.org/Vol-4283/paper169.pdf)
 [![Website](https://img.shields.io/badge/Project-Website-green)](https://ds4ai-upb.github.io/VANGUARD-CLEF2026-EXIST/)
 [![arXiv](https://img.shields.io/badge/arXiv-2609.15608-b31b1b)](https://arxiv.org/abs/2609.15608)
 [![Hugging Face Collection](https://img.shields.io/badge/🤗-Collection-yellow)](https://huggingface.co/collections/DS4AI-UPB/clef-2026-vanguard)
